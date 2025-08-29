@@ -13,7 +13,7 @@ type postgres struct {
 
 // GetAuthByEmail implements login.contractDBRepository.
 func (p *postgres) GetAuthByEmail(ctx context.Context, email string) (auth entity.Auth, err error) {
-	panic("unimplemented")
+	return
 }
 
 func New(db *sql.DB) *postgres {

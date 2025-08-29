@@ -9,17 +9,17 @@ import (
 )
 
 type Login struct {
-	beeRouter *router.Router
-	db        *sql.DB
-	cache     contracts.Cache
+	// beeRouter *router.Router
+	db    *sql.DB
+	cache contracts.Cache
 
 	// contract *loginContract
 	handler contracts.Handler
 }
 
 // Run implements modules.Modules.
-func (l *Login) Run() {
-	l.beeRouter.Post("/auth/login", l.handler.Handle)
+func (l *Login) Run(router *router.Router) {
+	router.Post("/auth/login", l.handler.Handle)
 }
 
 // GetName implements modules.Modules.
@@ -32,10 +32,8 @@ func New(cfg *modules.ConfigService) *Login {
 		return &Login{}
 	}
 
-
 	return &Login{
-		beeRouter: cfg.Router,
-		db:        cfg.DB,
+		db:      cfg.DB,
 		handler: cfg.Handler,
 	}
 }

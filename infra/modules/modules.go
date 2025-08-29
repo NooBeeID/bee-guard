@@ -8,7 +8,7 @@ import (
 )
 
 type Modules interface {
-	Run()
+	Run(router *router.Router)
 	GetName() string
 }
 
@@ -28,7 +28,7 @@ func (b Base) GetModules() []Modules {
 func (b Base) Run() error {
 	for _, module := range b.modules {
 		slog.Debug(fmt.Sprintf("running module %v", module.GetName()))
-		module.Run()
+		module.Run(b.router)
 	}
 
 	return nil

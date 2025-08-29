@@ -2,7 +2,6 @@ package router
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"strings"
 
@@ -21,9 +20,9 @@ func (r *Router) Post(path string, handler contracts.HandlerFunc) {
 	r.buildRouter(path, http.MethodPost, handler)
 }
 
-func (r *Router) buildRouter(path, method string, handler contracts.HandlerFunc) {
+func (router *Router) buildRouter(path, method string, handler contracts.HandlerFunc) {
 	method = strings.ToUpper(method)
-	switch r := r.router.(type) {
+	switch r := router.router.(type) {
 	case *http.ServeMux:
 		r.Handle(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.ToUpper(r.Method) != method {
@@ -31,18 +30,24 @@ func (r *Router) buildRouter(path, method string, handler contracts.HandlerFunc)
 				return
 			}
 			ctx := r.Context()
-			// request body
 			req := contracts.Request{}
-			bodyBytes, err := io.ReadAll(r.Body)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+
+			if router.isNeedRequestBody(method) {
+				req.SetBody(r.Body)
 			}
-			req.SetBody(bodyBytes)
 
 			resp := handler(ctx, req)
 			json.NewEncoder(w).Encode(resp)
 
 		}))
+	}
+}
+
+func (r *Router) isNeedRequestBody(method string) bool {
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
+		return true
+	default:
+		return false
 	}
 }

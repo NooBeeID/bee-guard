@@ -60,7 +60,7 @@ func (s *Server) AddCustomModules(mods ...Modules) {
 
 func (s *Server) Start() error {
 	for _, mod := range s.mods {
-		mod.Run()
+		mod.Run(s.router)
 		slog.Info("module " + mod.GetName() + " started")
 	}
 

@@ -2,26 +2,27 @@ package login
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/NooBeeID/bee-guard/infra/contracts"
 )
 
-type contractService interface {
+type ContractService interface {
 	Login(ctx context.Context, req Request) (Response, error)
 }
 type handler struct {
-	svc contractService
+	svc ContractService
 }
 
-func NewHandler(svc contractService) handler {
+func NewHandler(svc ContractService) handler {
 	return handler{
 		svc: svc,
 	}
 }
 
 func (h handler) Handle(ctx context.Context, req contracts.Request) contracts.Response {
-
+	fmt.Println("Login Handle")
 	var request Request
 	if err := req.ParseRequest(&request); err != nil {
 		return contracts.Response{HttpStatus: http.StatusBadRequest, Err: err, Message: err.Error()}

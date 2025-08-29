@@ -4,23 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
 type Request struct {
-	body   []byte
+	body   io.ReadCloser
 	Query  map[string]any
 	Params map[string]any
 }
 
-func (r *Request) SetBody(body []byte) *Request {
+func (r *Request) SetBody(body io.ReadCloser) *Request {
 	r.body = body
 	return r
 }
 
 func (r Request) ParseRequest(body any) error {
-	err := json.Unmarshal(r.body, body)
-	return err
+	defer r.body.Close()
+	return json.NewDecoder(r.body).Decode(body)
 }
 
 type Response struct {

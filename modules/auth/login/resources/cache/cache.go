@@ -12,7 +12,7 @@ type cacheRedis struct {
 
 // StoreSession implements login.contractCacheRepository.
 func (c *cacheRedis) StoreSession(ctx context.Context, sessionId string, value string) (err error) {
-	panic("unimplemented")
+	return
 }
 
 func New(client contracts.Cache) *cacheRedis {

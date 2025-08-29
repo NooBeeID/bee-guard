@@ -14,10 +14,11 @@ import (
 )
 
 type BeeGuard struct {
-	router *router.Router
-	db     *sql.DB
-	cache contracts.Cache
-	server modules.Server
+	router  *router.Router
+	db      *sql.DB
+	cache   contracts.Cache
+	modules *modules.Base
+	server  modules.Server
 }
 
 func New() *BeeGuard {
@@ -48,17 +49,40 @@ func (b *BeeGuard) setSQL(db *sql.DB) *BeeGuard {
 	return b
 }
 
+func (b *BeeGuard) SetModules(mods ...modules.Modules) *BeeGuard {
+	list := modules.NewModules(b.router, mods...)
+	b.modules = &list
+
+	server := modules.NewServer(b.router, b.modules.GetModules()...)
+	b.server = server
+	return b
+}
+
+func (b *BeeGuard) SetCustomModules(mods ...modules.Modules) *BeeGuard {
+	if b.modules == nil {
+		b.SetDefaultModules()
+	}
+	b.server.AddCustomModules(mods...)
+	return b
+}
+
 func (b *BeeGuard) Run() error {
-	loginMod := login.New(&modules.ConfigService{
-		Handler: login.NewHandler(login.NewService(
-			loginpostgres.New(b.db),
-			logincache.New(b.cache),
-		)),
-	})
-
-
-	listModules := modules.NewModules(b.router, loginMod)
-	server := modules.NewServer(b.router, listModules.GetModules()...)
-	server.Start()
+	b.server.Start()
 	return nil
+}
+
+func (b *BeeGuard) SetDefaultModules() *BeeGuard {
+	if b.modules == nil {
+		loginMod := login.New(&modules.ConfigService{
+			Router: b.router,
+			Handler: login.NewHandler(login.NewService(
+				loginpostgres.New(b.db),
+				logincache.New(b.cache),
+			)),
+		})
+
+		list := modules.NewModules(b.router, loginMod)
+		b.SetModules(list.GetModules()...)
+	}
+	return b
 }
