@@ -33,7 +33,7 @@ func (s service) Login(ctx context.Context, req Request) (Response, error) {
 		return Response{}, err
 	}
 
-	token, err :=  auth.GenerateSession();
+	token, err := auth.GenerateSession()
 	if err != nil {
 		slog.ErrorContext(ctx, "Error GenerateToken", slog.Any("error", err.Error()), slog.String("email", req.Email))
 		return Response{}, err
@@ -48,7 +48,7 @@ func (s service) Login(ctx context.Context, req Request) (Response, error) {
 
 	return Response{
 		Token: token.Token,
-		Type: "Bearer",
+		Type:  "Bearer",
 	}, nil
 }
 

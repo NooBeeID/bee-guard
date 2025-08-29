@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -38,8 +39,9 @@ func (router *Router) buildRouter(path, method string, handler contracts.Handler
 
 			resp := handler(ctx, req)
 			json.NewEncoder(w).Encode(resp)
-
 		}))
+	default:
+		panic(fmt.Sprintf("unknown router type %T", r))
 	}
 }
 
