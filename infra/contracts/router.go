@@ -141,3 +141,7 @@ func (r Response) IsError() bool {
 }
 
 type HandlerFunc func(ctx context.Context, req Request) Response
+
+type Handler interface {
+	Handle(ctx context.Context, req Request) Response
+}

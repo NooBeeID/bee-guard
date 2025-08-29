@@ -2,7 +2,6 @@ package login
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/NooBeeID/bee-guard/infra/contracts"
@@ -21,8 +20,7 @@ func NewHandler(svc contractService) handler {
 	}
 }
 
-func (h handler) Login(ctx context.Context, req contracts.Request) contracts.Response {
-	fmt.Println("Login Handler")
+func (h handler) Handle(ctx context.Context, req contracts.Request) contracts.Response {
 
 	var request Request
 	if err := req.ParseRequest(&request); err != nil {
@@ -30,8 +28,10 @@ func (h handler) Login(ctx context.Context, req contracts.Request) contracts.Res
 	}
 
 	resp, err := h.svc.Login(ctx, request)
-	fmt.Println(resp, err)
+	if err != nil {
+		return contracts.Response{Err: err}
+	}
 	return contracts.Response{
-		Payload: request,
+		Payload: resp,
 	}
 }

@@ -3,9 +3,12 @@ package beeguard
 import (
 	"database/sql"
 
+	"github.com/NooBeeID/bee-guard/infra/contracts"
+	"github.com/NooBeeID/bee-guard/infra/modules"
 	"github.com/NooBeeID/bee-guard/infra/router"
-	"github.com/NooBeeID/bee-guard/modules"
 	"github.com/NooBeeID/bee-guard/modules/auth/login"
+	logincache "github.com/NooBeeID/bee-guard/modules/auth/login/resources/cache"
+	loginpostgres "github.com/NooBeeID/bee-guard/modules/auth/login/resources/postgresql"
 	"github.com/jmoiron/sqlx"
 	"gorm.io/gorm"
 )
@@ -13,6 +16,8 @@ import (
 type BeeGuard struct {
 	router *router.Router
 	db     *sql.DB
+	cache contracts.Cache
+	server modules.Server
 }
 
 func New() *BeeGuard {
@@ -44,10 +49,16 @@ func (b *BeeGuard) setSQL(db *sql.DB) *BeeGuard {
 }
 
 func (b *BeeGuard) Run() error {
-	loginSvc := login.New(&modules.ConfigService{
-		Router: b.router,
-		Db:     b.db,
+	loginMod := login.New(&modules.ConfigService{
+		Handler: login.NewHandler(login.NewService(
+			loginpostgres.New(b.db),
+			logincache.New(b.cache),
+		)),
 	})
-	loginSvc.Run()
+
+
+	listModules := modules.NewModules(b.router, loginMod)
+	server := modules.NewServer(b.router, listModules.GetModules()...)
+	server.Start()
 	return nil
 }

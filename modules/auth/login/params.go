@@ -5,4 +5,7 @@ type Request struct {
 	Password string `json:"password"`
 }
 
-type Response struct{}
+type Response struct{
+	Token string `json:"token"`
+	Type string `json:"type"`
+}

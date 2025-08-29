@@ -1,4 +1,4 @@
-package adapter
+package entity
 
 type Auth struct {
 	ID       string
@@ -13,6 +13,15 @@ func (a Auth) VerifyPassword(plainPassword string) error {
 	return nil
 }
 
-func (a Auth) GenerateToken() string {
-	return "JWT Token"
+func (a Auth) GenerateSession() (Session, error) {
+	return Session{
+		ID: a.ID,
+		Token: "User Token",
+	}, nil
+}
+
+
+type Session struct{
+	ID string
+	Token string
 }
