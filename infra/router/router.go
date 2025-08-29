@@ -2,7 +2,7 @@ package router
 
 import (
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -33,13 +33,12 @@ func (r *Router) buildRouter(path, method string, handler contracts.HandlerFunc)
 			ctx := r.Context()
 			// request body
 			req := contracts.Request{}
-			var reqBody json.RawMessage
-			if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+			bodyBytes, err := io.ReadAll(r.Body)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			req.Body = reqBody
-			fmt.Println(string(reqBody))
+			req.SetBody(bodyBytes)
 
 			resp := handler(ctx, req)
 			json.NewEncoder(w).Encode(resp)

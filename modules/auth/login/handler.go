@@ -31,5 +31,7 @@ func (h handler) Login(ctx context.Context, req contracts.Request) contracts.Res
 
 	resp, err := h.svc.Login(ctx, request)
 	fmt.Println(resp, err)
-	return contracts.Response{}
+	return contracts.Response{
+		Payload: request,
+	}
 }

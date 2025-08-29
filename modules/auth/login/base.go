@@ -34,7 +34,7 @@ func (l *Login) SetSQL(db *sql.DB) *Login {
 }
 
 func (l *Login) Run() {
-	svc := NewService(nil)
+	svc := NewService(nil, nil)
 	handler := NewHandler(svc)
 
 	l.beeRouter.Post("/auth/login", handler.Login)
