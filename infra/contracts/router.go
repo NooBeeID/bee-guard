@@ -141,8 +141,8 @@ func (r Response) IsError() bool {
 	return r.Err != nil
 }
 
-type HandlerFunc func(ctx context.Context, req Request) Response
+type HandlerFunc func(ctx context.Context, req Request) any
 
 type Handler interface {
-	Handle(ctx context.Context, req Request) Response
+	Handle(ctx context.Context, req Request) any
 }

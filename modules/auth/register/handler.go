@@ -1,4 +1,4 @@
-package login
+package register
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 )
 
 type ContractService interface {
-	Login(ctx context.Context, req Request) (Response, error)
+	Register(ctx context.Context, req Request) (Response, error)
 }
 type handler struct {
 	svc ContractService
@@ -26,7 +26,7 @@ func (h handler) Handle(ctx context.Context, req contracts.Request) any {
 		return contracts.NewErrBadRequest(err, contracts.WithError(err))
 	}
 
-	resp, err := h.svc.Login(ctx, request)
+	resp, err := h.svc.Register(ctx, request)
 	if err != nil {
 		return err
 	}

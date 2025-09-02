@@ -1,4 +1,4 @@
-package logincache
+package registercache
 
 import (
 	"context"

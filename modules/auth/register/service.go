@@ -1,4 +1,4 @@
-package login
+package register
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 type contractDBRepository interface {
 	GetAuthByEmail(ctx context.Context, email string) (auth entity.Auth, err error)
+	StoreAuth(ctx context.Context, auth entity.Auth) (err error)
 }
 
 type contractCacheRepository interface {
@@ -20,36 +21,39 @@ type service struct {
 	cache contractCacheRepository
 }
 
-// Login implements contractService.
-func (s service) Login(ctx context.Context, req Request) (res Response, err error) {
+// Register implements ContractService.
+func (s service) Register(ctx context.Context, req Request) (res Response, err error) {
 	auth, err := s.repo.GetAuthByEmail(ctx, req.Email)
 	if err != nil {
 		slog.ErrorContext(ctx, "Error GetAuthByEmail", slog.Any("error", err.Error()), slog.String("email", req.Email))
-		return res, err
+		return
 	}
 
-	if err := auth.VerifyPassword(req.Password); err != nil {
-		slog.ErrorContext(ctx, "Error VerifyPassword", slog.Any("error", err.Error()), slog.String("email", req.Email))
-		return res, err
+	if auth.IsExists() {
+		err = entity.ErrAuthAlreadyExists
+		slog.ErrorContext(ctx, "Error GetAuthByEmail", slog.Any("error", err.Error()), slog.String("email", req.Email))
+		return
 	}
 
-	token, err := auth.GenerateSession()
-	if err != nil {
-		slog.ErrorContext(ctx, "Error GenerateSession", slog.Any("error", err.Error()), slog.String("email", req.Email))
-		return res, err
+	auth = req.toAuth()
+	if err = auth.GeneratePassword(); err != nil {
+		slog.ErrorContext(ctx, "Error GeneratePassword", slog.Any("error", err.Error()), slog.String("email", req.Email))
+		return
+	}
+
+	if err = s.repo.StoreAuth(ctx, auth); err != nil {
+		slog.ErrorContext(ctx, "Error StoreAuth", slog.Any("error", err.Error()), slog.String("email", req.Email))
+		return
 	}
 
 	if s.useCache() {
-		if err := s.cache.StoreSession(ctx, "session_key_user", token.Token); err != nil {
+		if err = s.cache.StoreSession(ctx, "session_key_user", auth.ID); err != nil {
 			slog.ErrorContext(ctx, "Error StoreSession", slog.Any("error", err.Error()), slog.String("email", req.Email))
-			return res, err
+			return
 		}
 	}
 
-	return Response{
-		Token: token.Token,
-		Type:  "Bearer",
-	}, nil
+	return
 }
 
 func NewService(repo contractDBRepository, cache contractCacheRepository) service {

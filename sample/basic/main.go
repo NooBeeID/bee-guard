@@ -6,11 +6,15 @@ import (
 	"net/http"
 
 	"github.com/NooBeeID/bee-guard/beeguard"
+	beeguardcache "github.com/NooBeeID/bee-guard/beeguard/cache"
 )
 
 func main() {
 	router := http.NewServeMux()
-	beeGuard := beeguard.New().SetRouter(router).SetDefaultModules()
+	beeGuard := beeguard.New().
+		SetRouter(router).
+		SetDefaultModules().
+		SetCache(beeguardcache.NewMemoryCache())
 
 	if err := beeGuard.Run(); err != nil {
 		log.Fatal(err)

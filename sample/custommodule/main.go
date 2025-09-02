@@ -33,7 +33,7 @@ type CustomModuleLogin struct {
 	svc login.ContractService
 }
 
-func (c CustomModuleLogin) Handle(ctx context.Context, req contracts.Request) contracts.Response {
+func (c CustomModuleLogin) Handle(ctx context.Context, req contracts.Request) any {
 	fmt.Println("Custom Handle")
 	return contracts.Response{}
 }

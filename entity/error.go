@@ -7,5 +7,6 @@ import (
 )
 
 var (
-	ErrInvalidPassword = contracts.NewErrBadRequest(errors.New("invalid password"))
+	ErrInvalidPassword   = contracts.NewErrBadRequest(errors.New("invalid password"))
+	ErrAuthAlreadyExists = contracts.NewErrBadRequest(errors.New("auth already exists"))
 )

@@ -8,10 +8,9 @@ import (
 )
 
 type ConfigService struct {
-	Router *router.Router
-	DB     *sql.DB
-	Cache contracts.Cache
+	Router  *router.Router
+	DB      *sql.DB
+	Cache   contracts.Cache
 	Handler contracts.Handler
+	Path    string
 }
-
-

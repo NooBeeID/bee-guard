@@ -38,6 +38,11 @@ func (router *Router) buildRouter(path, method string, handler contracts.Handler
 			}
 
 			resp := handler(ctx, req)
+			response, ok := resp.(*contracts.Response)
+			if !ok {
+				response = contracts.NewErrGeneral(fmt.Errorf("unknown response type %T", resp))
+			}
+			w.WriteHeader(response.HttpStatus)
 			json.NewEncoder(w).Encode(resp)
 		}))
 	default:

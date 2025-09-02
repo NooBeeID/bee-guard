@@ -1,4 +1,4 @@
-package loginpostgres
+package logindatabase
 
 import (
 	"context"
@@ -13,6 +13,7 @@ type postgres struct {
 
 // GetAuthByEmail implements login.contractDBRepository.
 func (p *postgres) GetAuthByEmail(ctx context.Context, email string) (auth entity.Auth, err error) {
+
 	return
 }
 
